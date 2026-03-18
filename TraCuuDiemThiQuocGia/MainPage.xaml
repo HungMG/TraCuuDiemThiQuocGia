@@ -1,57 +1,251 @@
-﻿<!-- Views/MainPage.xaml -->
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:vm="clr-namespace:TraCuuDiemThiQuocGia
-             x:Class="TraCuuDiemThiQuocGia.Views.MainPage"
-             Title="Tra Cứu Điểm Thi Quốc Gia">
+             xmlns:vm="using:TraCuuDiemThiQuocGia.ViewModels"
+             x:Class="TraCuuDiemThiQuocGia.MainPage"
+             Title="Tra Cứu Điểm Thi Quốc Gia"
+             BackgroundColor="#F5F5F5">
 
     <ContentPage.BindingContext>
         <vm:MainViewModel />
     </ContentPage.BindingContext>
 
-    <VerticalStackLayout Padding="20" Spacing="16">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="0">
 
-        <!-- Header -->
-        <Label Text="🎓 TRA CỨU ĐIỂM THI QUỐC GIA"
-               FontSize="20" FontAttributes="Bold"
-               HorizontalOptions="Center" />
+            <!-- Header Section -->
+            <VerticalStackLayout Spacing="16" HorizontalOptions="Center" Margin="0,0,0,24">
+                <!-- Icon -->
+                <Label Text="🎓"
+                       FontSize="64"
+                       HorizontalOptions="Center" />
 
-        <Label Text="Hệ thống phân tán: Node Bắc (001–500) | Node Nam (501–1000)"
-               FontSize="12" TextColor="Gray"
-               HorizontalOptions="Center" />
+                <!-- Title -->
+                <Label Text="Tra cứu Điểm thi"
+                       FontSize="28"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"
+                       TextColor="#1F2937" />
 
-        <!-- Input -->
-        <Frame BorderColor="LightGray" CornerRadius="8" Padding="4">
-            <Entry x:Name="SbdEntry"
-                   Placeholder="Nhập số báo danh (001–1000)"
-                   Keyboard="Numeric"
-                   Text="{Binding SoBaoDanh}"
-                   FontSize="18" />
-        </Frame>
+                <!-- Subtitle -->
+                <Label Text="Kỳ thi Tốt nghiệp THPT Quốc gia"
+                       FontSize="14"
+                       HorizontalOptions="Center"
+                       TextColor="#6B7280" />
+            </VerticalStackLayout>
 
-        <!-- Nút tra cứu -->
-        <Button Text="🔍 Tra Cứu"
-                Command="{Binding TraCuuCommand}"
-                BackgroundColor="#1565C0"
-                TextColor="White"
-                FontSize="16"
-                CornerRadius="8"
-                HeightRequest="50" />
+            <!-- Search State (IsVisible when ThiSinh is null) -->
+            <VerticalStackLayout Spacing="24" 
+                                 IsVisible="{Binding IsSearchVisible}">
 
-        <!-- Loading -->
-        <ActivityIndicator IsRunning="{Binding IsLoading}"
-                           IsVisible="{Binding IsLoading}"
-                           Color="#1565C0" />
+                <!-- Input Section -->
+                <VerticalStackLayout Spacing="12">
+                    <!-- Label -->
+                    <Label Text="SỐ BÁO DANH"
+                           FontSize="12"
+                           FontAttributes="Bold"
+                           TextColor="#6B7280" />
 
-        <!-- Kết quả -->
-        <Frame BorderColor="LightBlue" CornerRadius="8" 
-               BackgroundColor="#F0F8FF" Padding="16"
-               IsVisible="{Binding KetQua, Converter={StaticResource NotNullConverter}}">
-            <Label Text="{Binding KetQua}"
-                   FontFamily="Courier New"
-                   FontSize="14" />
-        </Frame>
+                    <!-- Entry with Search Icon -->
+                    <Frame BorderColor="#E5E7EB" CornerRadius="8" Padding="12" HasShadow="False" BackgroundColor="White">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                            <Entry x:Name="SbdEntry"
+                                   Grid.Column="0"
+                                   Placeholder="Nhập 8 chữ số SBD..."
+                                   Keyboard="Numeric"
+                                   Text="{Binding SoBaoDanh}"
+                                   FontSize="16"
+                                   TextColor="#1F2937"
+                                   PlaceholderColor="#9CA3AF"
+                                   ClearButtonVisibility="WhileEditing" />
+                            <Label Grid.Column="1" Text="🔍" FontSize="18" VerticalOptions="Center" />
+                        </Grid>
+                    </Frame>
+                </VerticalStackLayout>
 
-    </VerticalStackLayout>
+                <!-- Search Button -->
+                <Button Text="Tra cứu kết quả"
+                        Command="{Binding TraCuuCommand}"
+                        BackgroundColor="#10B981"
+                        TextColor="White"
+                        FontSize="16"
+                        FontAttributes="Bold"
+                        CornerRadius="8"
+                        HeightRequest="48" />
+
+                <!-- Loading Indicator -->
+                <ActivityIndicator IsRunning="{Binding IsLoading}"
+                                   IsVisible="{Binding IsLoading}"
+                                   Color="#10B981"
+                                   HorizontalOptions="Center" />
+
+                <!-- Instructions Card -->
+                <Frame BorderColor="#E5E7EB" CornerRadius="12" Padding="16" HasShadow="False" BackgroundColor="White">
+                    <VerticalStackLayout Spacing="12">
+                        <Label Text="Hướng dẫn:"
+                               FontSize="14"
+                               FontAttributes="Bold"
+                               TextColor="#1F2937" />
+
+                        <VerticalStackLayout Spacing="8">
+                            <StackLayout Spacing="8" Orientation="Horizontal">
+                                <Label Text="•" FontSize="12" TextColor="#10B981" VerticalOptions="Start" />
+                                <Label Text="Nhập chính xác 8 chữ số của số báo danh."
+                                       FontSize="12"
+                                       TextColor="#6B7280"
+                                       LineBreakMode="WordWrap" />
+                            </StackLayout>
+
+                            <StackLayout Spacing="8" Orientation="Horizontal">
+                                <Label Text="•" FontSize="12" TextColor="#10B981" VerticalOptions="Start" />
+                                <Label Text="Ví dụ: 01000001"
+                                       FontSize="12"
+                                       TextColor="#6B7280" />
+                            </StackLayout>
+
+                            <StackLayout Spacing="8" Orientation="Horizontal">
+                                <Label Text="•" FontSize="12" TextColor="#10B981" VerticalOptions="Start" />
+                                <Label Text="Kết quả sẽ hiển thị ngay sau khi xác nhận."
+                                       FontSize="12"
+                                       TextColor="#6B7280"
+                                       LineBreakMode="WordWrap" />
+                            </StackLayout>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </Frame>
+            </VerticalStackLayout>
+
+            <!-- Result State -->
+            <VerticalStackLayout Spacing="16" 
+                                 IsVisible="{Binding IsResultVisible}">
+
+                <!-- Top Bar with Back and Result Badge -->
+                <Grid ColumnDefinitions="Auto,*,Auto" Margin="0,0,0,16">
+                    <Button Grid.Column="0" Text="←" 
+                            BackgroundColor="Transparent"
+                            TextColor="#6B7280"
+                            FontSize="20"
+                            Padding="0"
+                            WidthRequest="40"
+                            HeightRequest="40"
+                            Command="{Binding ResetCommand}" />
+
+                    <Label Grid.Column="2" Text="KẾT QUẢ THI" 
+                           FontSize="12"
+                           FontAttributes="Bold"
+                           TextColor="#10B981"
+                           VerticalOptions="Center" />
+                </Grid>
+
+                <!-- Student Info Card -->
+                <Frame BorderColor="#E5E7EB" CornerRadius="12" Padding="16" HasShadow="False" BackgroundColor="White">
+                    <VerticalStackLayout Spacing="12">
+                        <!-- Student Icon and Name -->
+                        <StackLayout Orientation="Horizontal" Spacing="12">
+                            <Label Text="👤" FontSize="32" VerticalOptions="Center" />
+                            <VerticalStackLayout VerticalOptions="Center">
+                                <Label Text="THÍ SINH" FontSize="11" TextColor="#9CA3AF" FontAttributes="Bold" />
+                                <Label Text="{Binding ThiSinh.HoTen}" FontSize="16" FontAttributes="Bold" TextColor="#1F2937" />
+                            </VerticalStackLayout>
+                        </StackLayout>
+
+                        <BoxView HeightRequest="1" Color="#E5E7EB" />
+
+                        <!-- Date of Birth and Location -->
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                            <VerticalStackLayout Grid.Column="0">
+                                <Label Text="NGÀY SINH" FontSize="10" TextColor="#9CA3AF" FontAttributes="Bold" />
+                                <Label Text="{Binding ThiSinh.NgaySinh, StringFormat='{0:dd/MM/yyyy}'}" 
+                                       FontSize="14" TextColor="#1F2937" FontAttributes="Bold" />
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout Grid.Column="1">
+                                <Label Text="HỘI ĐỒNG THI" FontSize="10" TextColor="#9CA3AF" FontAttributes="Bold" />
+                                <Label Text="{Binding ThiSinh.KhuVuc}" 
+                                       FontSize="14" TextColor="#1F2937" FontAttributes="Bold" />
+                            </VerticalStackLayout>
+                        </Grid>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Scores Grid (2 columns, 3 rows) -->
+                <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="12">
+
+                    <!-- Toán -->
+                    <Frame Grid.Row="0" Grid.Column="0" BorderColor="#E5E7EB" CornerRadius="12" Padding="16" HasShadow="False" BackgroundColor="White">
+                        <VerticalStackLayout>
+                            <Label Text="Toán" FontSize="11" TextColor="#9CA3AF" FontAttributes="Bold" />
+                            <Label Text="{Binding ThiSinh.DiemToan, StringFormat='{0:F2}'}" 
+                                   FontSize="24" FontAttributes="Bold" TextColor="#10B981" />
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <!-- Ngữ Văn -->
+                    <Frame Grid.Row="0" Grid.Column="1" BorderColor="#E5E7EB" CornerRadius="12" Padding="16" HasShadow="False" BackgroundColor="White">
+                        <VerticalStackLayout>
+                            <Label Text="Ngữ văn" FontSize="11" TextColor="#9CA3AF" FontAttributes="Bold" />
+                            <Label Text="{Binding ThiSinh.DiemVan, StringFormat='{0:F2}'}" 
+                                   FontSize="24" FontAttributes="Bold" TextColor="#10B981" />
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <!-- Tiếng Anh -->
+                    <Frame Grid.Row="1" Grid.Column="0" BorderColor="#E5E7EB" CornerRadius="12" Padding="16" HasShadow="False" BackgroundColor="White">
+                        <VerticalStackLayout>
+                            <Label Text="Tiếng Anh" FontSize="11" TextColor="#9CA3AF" FontAttributes="Bold" />
+                            <Label Text="{Binding ThiSinh.DiemAnh, StringFormat='{0:F2}'}" 
+                                   FontSize="24" FontAttributes="Bold" TextColor="#10B981" />
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <!-- Average Score -->
+                    <Frame Grid.Row="1" Grid.Column="1" BorderColor="#E5E7EB" CornerRadius="12" Padding="16" HasShadow="False" BackgroundColor="White">
+                        <VerticalStackLayout>
+                            <Label Text="Trung bình" FontSize="11" TextColor="#9CA3AF" FontAttributes="Bold" />
+                            <Label Text="{Binding ThiSinh.DiemTrungBinh, StringFormat='{0:F2}'}" 
+                                   FontSize="24" FontAttributes="Bold" TextColor="#10B981" />
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <!-- Additional Info Row 1 -->
+                    <Frame Grid.Row="2" Grid.Column="0" BorderColor="#E5E7EB" CornerRadius="12" Padding="16" HasShadow="False" BackgroundColor="White">
+                        <VerticalStackLayout>
+                            <Label Text="SBD" FontSize="11" TextColor="#9CA3AF" FontAttributes="Bold" />
+                            <Label Text="{Binding ThiSinh.SoBaoDanh, StringFormat='{0:D8}'}" 
+                                   FontSize="14" TextColor="#1F2937" FontAttributes="Bold" />
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <!-- Additional Info Row 2 -->
+                    <Frame Grid.Row="2" Grid.Column="1" BorderColor="#E5E7EB" CornerRadius="12" Padding="16" HasShadow="False" BackgroundColor="White">
+                        <VerticalStackLayout>
+                            <Label Text="TRẠNG THÁI" FontSize="11" TextColor="#9CA3AF" FontAttributes="Bold" />
+                            <Label Text="✅ Đạt" 
+                                   FontSize="14" TextColor="#10B981" FontAttributes="Bold" />
+                        </VerticalStackLayout>
+                    </Frame>
+                </Grid>
+
+                <!-- Search Another Button -->
+                <Button Text="Tra cứu số báo danh khác"
+                        Command="{Binding ResetCommand}"
+                        BackgroundColor="White"
+                        TextColor="#10B981"
+                        FontSize="14"
+                        BorderColor="#10B981"
+                        BorderWidth="1"
+                        CornerRadius="8"
+                        HeightRequest="48"
+                        Margin="0,16,0,0" />
+            </VerticalStackLayout>
+
+            <!-- Footer -->
+            <Label Text="© 2026 Hệ thống Tra cứu Điểm thi THPT Quốc gia"
+                   FontSize="11"
+                   HorizontalOptions="Center"
+                   TextColor="#9CA3AF"
+                   Margin="0,32,0,10" />
+
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

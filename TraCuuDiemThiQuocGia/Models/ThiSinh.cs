@@ -1,4 +1,6 @@
 // Models/ThiSinh.cs
+namespace TraCuuDiemThiQuocGia.Models;
+
 public class ThiSinh
 {
     public int SoBaoDanh { get; set; }

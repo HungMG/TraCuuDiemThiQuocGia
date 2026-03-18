@@ -1,6 +1,8 @@
 // Services/QueryRouter.cs
-using Java.Net;
 using Microsoft.Data.SqlClient;
+using TraCuuDiemThiQuocGia.Models;
+
+namespace TraCuuDiemThiQuocGia.Services;
 
 public class QueryRouter
 {
@@ -16,6 +18,44 @@ public class QueryRouter
 
     public async Task<KetQuaTraCuu> TraCuuAsync(int soBaoDanh)
     {
+        // ===== TEST DATA - XÓA KHI CÓ DATABASE THỰC =====
+        if (soBaoDanh == 1000001)
+        {
+            return new KetQuaTraCuu
+            {
+                ThanhCong = true,
+                ThiSinh = new ThiSinh
+                {
+                    SoBaoDanh = 1000001,
+                    HoTen = "NGUYỄN VĂN A",
+                    NgaySinh = new DateTime(2006, 5, 15),
+                    DiemToan = 8.40,
+                    DiemVan = 7.50,
+                    DiemAnh = 9.20,
+                    KhuVuc = "Hà Nội"
+                }
+            };
+        }
+
+        if (soBaoDanh == 1000002)
+        {
+            return new KetQuaTraCuu
+            {
+                ThanhCong = true,
+                ThiSinh = new ThiSinh
+                {
+                    SoBaoDanh = 1000002,
+                    HoTen = "TRẦN THỊ B",
+                    NgaySinh = new DateTime(2006, 8, 20),
+                    DiemToan = 7.25,
+                    DiemVan = 8.00,
+                    DiemAnh = 7.75,
+                    KhuVuc = "TP. Hồ Chí Minh"
+                }
+            };
+        }
+        // ===== END TEST DATA =====
+
         // 1. QUERY ROUTER — Tính toán node nào chứa SBD này
         string connString;
         string tenNode;

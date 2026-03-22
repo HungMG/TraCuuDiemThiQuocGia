@@ -1,4 +1,3 @@
-// ViewModels/MainViewModel.cs
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
@@ -9,11 +8,11 @@ namespace TraCuuDiemThiQuocGia.ViewModels;
 
 public class MainViewModel : INotifyPropertyChanged
 {
-    private readonly QueryRouter _router = new QueryRouter();
-    private string _soBaoDanh;
-    private string _ketQua;
-    private bool _isLoading;
-    private ThiSinh _thiSinh;
+    private string _soBaoDanh = string.Empty;
+    private ThiSinh _thiSinh = null;
+    private bool _isLoading = false;
+    private string _errorMessage = string.Empty;
+    private bool _hasError = false;
 
     public string SoBaoDanh
     {
@@ -21,10 +20,16 @@ public class MainViewModel : INotifyPropertyChanged
         set { _soBaoDanh = value; OnPropertyChanged(); }
     }
 
-    public string KetQua
+    public ThiSinh ThiSinh
     {
-        get => _ketQua;
-        set { _ketQua = value; OnPropertyChanged(); }
+        get => _thiSinh;
+        set
+        {
+            _thiSinh = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(IsSearchVisible));
+            OnPropertyChanged(nameof(IsResultVisible));
+        }
     }
 
     public bool IsLoading
@@ -33,69 +38,70 @@ public class MainViewModel : INotifyPropertyChanged
         set { _isLoading = value; OnPropertyChanged(); }
     }
 
-    public ThiSinh ThiSinh
+    public string ErrorMessage
     {
-        get => _thiSinh;
-        set 
-        { 
-            _thiSinh = value;
-            OnPropertyChanged();
-            OnPropertyChanged(nameof(IsResultVisible));
-            OnPropertyChanged(nameof(IsSearchVisible));
-        }
+        get => _errorMessage;
+        set { _errorMessage = value; OnPropertyChanged(); }
     }
 
-    public bool IsResultVisible => ThiSinh != null;
-    public bool IsSearchVisible => ThiSinh == null;
-
-    public ICommand TraCuuCommand => new Command(async () =>
+    public bool HasError
     {
-        if (!int.TryParse(SoBaoDanh, out int sbd))
+        get => _hasError;
+        set { _hasError = value; OnPropertyChanged(); }
+    }
+
+    public bool IsSearchVisible => ThiSinh == null;
+    public bool IsResultVisible => ThiSinh != null;
+
+    public ICommand TraCuuCommand { get; }
+    public ICommand ResetCommand { get; }
+
+    public MainViewModel()
+    {
+        TraCuuCommand = new Command(async () => await OnTraCuu());
+        ResetCommand = new Command(OnReset);
+    }
+
+    private async Task OnTraCuu()
+    {
+        HasError = false;
+        ErrorMessage = string.Empty;
+
+        if (!int.TryParse(SoBaoDanh, out int sbd) || sbd < 1 || sbd > 1000)
         {
-            KetQua = "⚠️ Vui lòng nhập số báo danh hợp lệ!";
-            ThiSinh = null;
+            HasError = true;
+            ErrorMessage = "Vui lòng nhập số báo danh hợp lệ từ 1 đến 1000.";
             return;
         }
 
         IsLoading = true;
-        KetQua = "Đang tra cứu...";
 
-        var result = await _router.TraCuuAsync(sbd);
+        var (ketQua, loi) = await DatabaseRouter.TraCuuAsync(sbd);
 
-        if (result.ThanhCong)
+        IsLoading = false;
+
+        if (ketQua != null)
         {
-            ThiSinh = result.ThiSinh;
-            KetQua = $"""
-                ✅ TÌM THẤY THÍ SINH
-                ━━━━━━━━━━━━━━━━━━━━
-                📋 SBD:     {result.ThiSinh.SoBaoDanh:D3}
-                👤 Họ tên:  {result.ThiSinh.HoTen}
-                🎂 Ngày SN: {result.ThiSinh.NgaySinh:dd/MM/yyyy}
-                🌏 Khu vực: {result.ThiSinh.KhuVuc}
-                ━━━━━━━━━━━━━━━━━━━━
-                📐 Toán:    {result.ThiSinh.DiemToan}
-                📝 Văn:     {result.ThiSinh.DiemVan}
-                🌍 Anh:     {result.ThiSinh.DiemAnh}
-                ⭐ TB:       {result.ThiSinh.DiemTrungBinh}
-                """;
+            ThiSinh = ketQua;
         }
         else
         {
-            KetQua = result.ThongBao;
-            ThiSinh = null;
+            HasError = true;
+            ErrorMessage = string.IsNullOrEmpty(loi)
+                ? $"Không tìm thấy SBD {sbd} trong database."
+                : loi;
         }
+    }
 
-        IsLoading = false;
-    });
-
-    public ICommand ResetCommand => new Command(() =>
+    private void OnReset()
     {
-        SoBaoDanh = "";
-        KetQua = "";
         ThiSinh = null;
-    });
+        SoBaoDanh = string.Empty;
+        HasError = false;
+        ErrorMessage = string.Empty;
+    }
 
     public event PropertyChangedEventHandler PropertyChanged;
-    void OnPropertyChanged([CallerMemberName] string name = "") =>
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    protected void OnPropertyChanged([CallerMemberName] string name = null)
+        => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 }

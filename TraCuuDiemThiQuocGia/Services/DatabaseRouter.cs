@@ -11,8 +11,7 @@ public class DatabaseRouter
         Timeout = TimeSpan.FromSeconds(10)
     };
 
-    // Dùng IP máy tính thay localhost vì app chạy trên điện thoại
-    private const string API_URL = "http://192.168.1.48:5000/api/tracuu";
+    private const string API_URL = "http://192.168.31.238:5000/api/tracuu";
 
     public static async Task<(ThiSinh ketQua, string loi)> TraCuuAsync(int sbd)
     {

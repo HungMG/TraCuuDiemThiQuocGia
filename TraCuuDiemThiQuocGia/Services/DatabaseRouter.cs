@@ -11,7 +11,7 @@ public class DatabaseRouter
         Timeout = TimeSpan.FromSeconds(10)
     };
 
-    private const string API_URL = "http://192.168.31.238:5000/api/tracuu";
+    private const string API_URL = "https://stauroscopically-unlethargical-merideth.ngrok-free.dev/api/tracuu";
 
     public static async Task<(ThiSinh ketQua, string loi)> TraCuuAsync(int sbd)
     {
